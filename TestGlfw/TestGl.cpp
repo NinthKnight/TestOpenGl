@@ -7,18 +7,22 @@
 #include <iostream>
 #include <windows.h>
 #include "glut\glut.h"
+#include "MapHelper.h"
 
 #pragma comment(lib, "glut32.lib")
 #pragma comment(lib, "opengl32.lib")
 //#pragma comment(lib, "glew32.lib")
 
+
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 650;
+const unsigned int SCR_HEIGHT = 650;
 
 const unsigned int BLOCK_SIZE = SCR_HEIGHT /20;
 
 std::string strShow= "";
+
+CMapHelper g_mapHelper;
 
 //颜色表
 static const float colorTable[8][4] = {
@@ -130,7 +134,7 @@ void DrawBlock(float nX, float nY, int nType = 1) {
 	glRectf(0.0f + nX, 0.0f + nY,  //左下角坐标
 		BLOCK_SIZE + nX, BLOCK_SIZE + nY);  //右上角坐标
 
-	//选哦先画4条边缘线
+	//先画4条边缘线
 	glBegin(GL_LINES);
 	glLineWidth(1.0f);//指定宽度
 	
@@ -157,29 +161,37 @@ void DrawBlock(float nX, float nY, int nType = 1) {
 
 }
 
+void testTetrix(){
+
+	//   //测试绘制文字
+	testDrawString();
+
+	////绘制直线
+	tesDrawLine();
+
+	////测试绘制矩形
+	testDrawRect();
+
+	////测试绘制方块
+	float fX = 0;
+	float fY = SCR_HEIGHT / 2;
+
+	for (int i = 1; i < 8; i++) {
+		fX = 300 + (i - 1) *(BLOCK_SIZE + 1);
+		DrawBlock(fX, fY, i);
+	}
+}
+
 //显示回调函数
 void display(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT);/* clear all pixels   */
-	
 
-    //测试绘制文字
-	testDrawString();
+	//g_mapHelper.testDraw();
+	g_mapHelper.drawMap();
 
-	//绘制直线
-	tesDrawLine();
+	//testTetrix();
 
-	//测试绘制矩形
-	testDrawRect();
-
-	//测试绘制方块
-	float fX = 0;
-	float fY = SCR_HEIGHT/2;
-
-	for (int i = 1; i < 8; i++) {
-		fX = 300 + (i-1) *( BLOCK_SIZE+1);
-		DrawBlock(fX, fY, i);
-	}
 	
 	glFlush();/* start processing buffered OpenGL routines   */
 }
@@ -207,21 +219,44 @@ void keyboard(unsigned char key, int x, int y)
 	case 'w':{
 		std::cout << "w" << std::endl;
 		strShow = "上";
+		if (!g_mapHelper.CheckImpact(g_mapHelper.nCurTankX, g_mapHelper.nCurTankY - 1)) {
+			g_mapHelper.nCurTankY -= 1;
+			g_mapHelper.nCurRotate = 0;
+		}
+		
 	}
 	break;
 	case 's': {
 		std::cout << "s" << std::endl;
 		strShow = "下";
+
+		if (!g_mapHelper.CheckImpact(g_mapHelper.nCurTankX, g_mapHelper.nCurTankY + 1)) {
+			g_mapHelper.nCurTankY += 1;
+			g_mapHelper.nCurRotate = 2;
+		}
+
 	}
 	 break;
 	case 'a': {
 		std::cout << "a" << std::endl;
 		strShow = "左";
+
+		if (!g_mapHelper.CheckImpact(g_mapHelper.nCurTankX - 1, g_mapHelper.nCurTankY)) {
+			g_mapHelper.nCurTankX -= 1;
+			g_mapHelper.nCurRotate = 3;
+		}
+
 	}
 	break;
 	case 'd': {
 		std::cout << "d" << std::endl;
 		strShow = "右";
+
+		if (!g_mapHelper.CheckImpact(g_mapHelper.nCurTankX + 1, g_mapHelper.nCurTankY)) {
+			g_mapHelper.nCurTankX += 1;
+			g_mapHelper.nCurRotate = 1;
+		}
+
 	}
 	break;
 	case 'r': // 'r' 键重启游戏
@@ -232,7 +267,7 @@ void keyboard(unsigned char key, int x, int y)
 }
 
 int main(void)
-{
+{   
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB); //设置显示模式
 	glutInitWindowSize(SCR_WIDTH, SCR_HEIGHT); //设置窗口大小 
 	glutInitWindowPosition(200, 200); //设置窗口在屏幕上的位置 
@@ -242,6 +277,7 @@ int main(void)
 	glutTimerFunc(1000, idle, 1); //定时器
 	glutKeyboardFunc(keyboard); //键盘回调函数
 	glOrtho(0.0f, SCR_WIDTH, 0.0f, SCR_HEIGHT, 1.0, -1.0);
-	glClearColor(0.96f, 0.96f, 0.96f, 1.0f);//清屏
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);//清屏
+	//glClearColor(0.96f, 0.96f, 0.96f, 1.0f);//清屏
 	glutMainLoop(); //消息循环（处理操作系统等的消息，例如键盘、鼠标事件等）
 }
