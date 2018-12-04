@@ -8,7 +8,9 @@
 #include <windows.h>
 #include "glut\glut.h"
 #include "MapHelper.h"
+#include <mmsystem.h>
 
+#pragma comment(lib,"winmm.lib")
 #pragma comment(lib, "glut32.lib")
 #pragma comment(lib, "opengl32.lib")
 //#pragma comment(lib, "glew32.lib")
@@ -268,6 +270,9 @@ void keyboard(unsigned char key, int x, int y)
 
 int main(void)
 {   
+	PlaySound(TEXT("data/start.wav"), NULL,
+		SND_FILENAME | SND_ASYNC);
+
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB); //设置显示模式
 	glutInitWindowSize(SCR_WIDTH, SCR_HEIGHT); //设置窗口大小 
 	glutInitWindowPosition(200, 200); //设置窗口在屏幕上的位置 
